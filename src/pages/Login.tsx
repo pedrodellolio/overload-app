@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { DumbbellIcon } from "lucide-react";
 
 export const Login = () => {
   const { signInWithGoogle } = useAuth();
@@ -24,7 +25,7 @@ export const Login = () => {
       <div className="max-w-md w-full bg-base-200 rounded-2xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-base-content mb-2">
-            Workout Tracker
+            <DumbbellIcon /> Overload
           </h1>
           <p className="text-base-content/70">
             Track your workouts, monitor your progress
