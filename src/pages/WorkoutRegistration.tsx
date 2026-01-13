@@ -9,6 +9,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Trash2Icon } from "lucide-react";
 
 const ExerciseInputSchema = z.object({
   workoutExerciseId: z.string(),
@@ -105,7 +106,7 @@ export const WorkoutRegistration = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-gray-600">Loading workout...</p>
+        <p className="text-base-content/70">Loading workout...</p>
       </div>
     );
   }
@@ -113,22 +114,22 @@ export const WorkoutRegistration = () => {
   if (!workout) {
     return (
       <div className="max-w-md mx-auto px-4 py-6">
-        <p className="text-red-600">Workout not found</p>
+        <p className="text-error">Workout not found</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 py-6 pb-24">
+    <div>
       <div className="mb-6">
         <button
           onClick={() => setLocation("/")}
-          className="text-blue-600 hover:underline mb-2"
+          className="text-accent hover:underline mb-2"
         >
           ← Back
         </button>
         <h1 className="text-2xl font-bold">{workout.title}</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-base-content/60 mt-1">
           Register your workout session
         </p>
       </div>
@@ -138,16 +139,16 @@ export const WorkoutRegistration = () => {
         {!isAddingExercise ? (
           <button
             onClick={() => setIsAddingExercise(true)}
-            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-500 hover:text-blue-600 transition-colors"
+            className="w-full py-2 border-2 border-dashed border-base-300 rounded-md text-base-content/70 hover:border-accent hover:text-accent transition-colors"
           >
             + Add Exercise
           </button>
         ) : (
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+          <div className="bg-base-300 rounded-md p-4 space-y-3">
             <select
               value={selectedExerciseId}
               onChange={(e) => setSelectedExerciseId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full select"
             >
               <option value="">Select an exercise...</option>
               {exercisesNotInWorkout?.map((exercise) => (
@@ -160,7 +161,7 @@ export const WorkoutRegistration = () => {
               <button
                 onClick={handleAddExercise}
                 disabled={!selectedExerciseId || addExerciseMutation.isPending}
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+                className="btn btn-accent flex-1"
               >
                 {addExerciseMutation.isPending ? "Adding..." : "Add"}
               </button>
@@ -169,7 +170,7 @@ export const WorkoutRegistration = () => {
                   setIsAddingExercise(false);
                   setSelectedExerciseId("");
                 }}
-                className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                className="btn btn-soft"
               >
                 Cancel
               </button>
@@ -180,24 +181,26 @@ export const WorkoutRegistration = () => {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {workout.exercises.length === 0 ? (
-          <p className="text-center text-gray-500 py-8">
+          <p className="text-center text-base-content/60 py-8">
             No exercises in this workout yet. Add some exercises to get started!
           </p>
         ) : (
           workout.exercises.map((workoutExercise, index) => (
             <div
               key={workoutExercise.id}
-              className="bg-white border border-gray-200 rounded-lg p-4"
+              className="bg-base-200 border border-base-300 rounded-md p-4"
             >
               <div className="flex justify-between items-start mb-3">
-                <h3 className="font-semibold">{workoutExercise.exercise.title}</h3>
+                <h3 className="font-semibold">
+                  {workoutExercise.exercise.title}
+                </h3>
                 <button
                   type="button"
                   onClick={() => handleRemoveExercise(workoutExercise.id)}
                   disabled={removeExerciseMutation.isPending}
-                  className="text-red-600 hover:bg-red-50 px-2 py-1 rounded text-sm transition-colors"
+                  className="btn btn-sm btn-error btn-soft btn-circle"
                 >
-                  Remove
+                  <Trash2Icon size={18} />
                 </button>
               </div>
 
@@ -209,7 +212,7 @@ export const WorkoutRegistration = () => {
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-base-content/60 mb-1">
                     Load (kg)
                   </label>
                   <input
@@ -219,17 +222,17 @@ export const WorkoutRegistration = () => {
                       valueAsNumber: true,
                     })}
                     defaultValue={workoutExercise.load_in_kg}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full input"
                   />
                   {errors.exercises?.[index]?.load_in_kg && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p className="text-error text-sm mt-1">
                       {errors.exercises[index]?.load_in_kg?.message}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-base-content/60 mb-1">
                     Details (optional)
                   </label>
                   <textarea
@@ -237,7 +240,7 @@ export const WorkoutRegistration = () => {
                     defaultValue={workoutExercise.details || ""}
                     rows={2}
                     placeholder="Notes, reps, sets, etc."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full textarea"
                   />
                 </div>
               </div>
@@ -249,7 +252,7 @@ export const WorkoutRegistration = () => {
           <button
             type="submit"
             disabled={registerMutation.isPending}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-semibold"
+            className="w-full btn btn-accent"
           >
             {registerMutation.isPending ? "Registering..." : "Complete Session"}
           </button>

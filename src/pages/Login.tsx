@@ -20,13 +20,13 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
+    <div className="min-h-screen bg-linear-to-br from-accent/30 to-accent flex items-center justify-center px-4">
+      <div className="max-w-md w-full bg-base-200 rounded-2xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-base-content mb-2">
             Workout Tracker
           </h1>
-          <p className="text-gray-600">
+          <p className="text-base-content/70">
             Track your workouts, monitor your progress
           </p>
         </div>
@@ -35,11 +35,11 @@ export const Login = () => {
           <button
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="w-full bg-white border-2 border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full btn btn-outline hover:border-accent"
           >
             {isLoading ? (
               <>
-                <div className="animate-spin h-5 w-5 border-2 border-gray-600 border-t-transparent rounded-full"></div>
+                <div className="animate-spin h-5 w-5 border-2 border-base-content border-t-transparent rounded-full"></div>
                 <span>Signing in...</span>
               </>
             ) : (
@@ -62,21 +62,16 @@ export const Login = () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                <span>Continue with Google</span>
+                <span className="text-base-content">Continue with Google</span>
               </>
             )}
           </button>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-error/10 border border-error/30 text-error px-4 py-3 rounded-md text-sm">
               {error}
             </div>
           )}
-        </div>
-
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>By signing in, you agree to our</p>
-          <p>Terms of Service and Privacy Policy</p>
         </div>
       </div>
     </div>

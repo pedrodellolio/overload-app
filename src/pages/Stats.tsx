@@ -1,8 +1,18 @@
 import { PRCard } from "../components/PRCard";
 import { WorkoutHeatmap } from "../components/WorkoutHeatmap";
 import { LoadEvolution } from "../components/LoadEvolution";
+import { useAuth } from "../contexts/AuthContext";
+import { LogOutIcon } from "lucide-react";
 
 export const Stats = () => {
+  const { user, signOut } = useAuth();
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
+  };
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 pb-24">
       <h1 className="text-2xl font-bold mb-6">Stats</h1>
@@ -24,6 +34,14 @@ export const Stats = () => {
           <LoadEvolution />
         </div>
       </div>
+
+      <p className="mt-8 text-sm text-base-content/60 text-center">
+        Logged in as <span className="font-semibold text-base-content">{user?.email}</span>
+      </p>
+      <button onClick={handleSignOut} className="mt-6 w-full btn btn-soft">
+        <LogOutIcon size={16} />
+        Sign Out
+      </button>
     </div>
   );
 };

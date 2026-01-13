@@ -27,50 +27,62 @@ function App() {
           <Route path="/login" component={Login} />
           <Route path="/">
             <ProtectedRoute>
-              <div className="min-h-screen bg-gray-50">
-                <Home />
+              <div className="h-full bg-base-100 flex flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <Home />
+                </div>
                 <Dock />
               </div>
             </ProtectedRoute>
           </Route>
           <Route path="/exercises">
             <ProtectedRoute>
-              <div className="min-h-screen bg-gray-50">
-                <Exercises />
+              <div className="h-full bg-base-100 flex flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <Exercises />
+                </div>
                 <Dock />
               </div>
             </ProtectedRoute>
           </Route>
           <Route path="/history">
             <ProtectedRoute>
-              <div className="min-h-screen bg-gray-50">
-                <History />
+              <div className="h-full bg-base-100 flex flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <History />
+                </div>
                 <Dock />
               </div>
             </ProtectedRoute>
           </Route>
           <Route path="/stats">
             <ProtectedRoute>
-              <div className="min-h-screen bg-gray-50">
-                <Stats />
+              <div className="h-full bg-base-100 flex flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <Stats />
+                </div>
                 <Dock />
               </div>
             </ProtectedRoute>
           </Route>
           <Route path="/workout/:id">
             <ProtectedRoute>
-              <div className="min-h-screen bg-gray-50">
-                <WorkoutRegistration />
+              <div className="h-full bg-base-100 flex flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <WorkoutRegistration />
+                </div>
                 <Dock />
               </div>
             </ProtectedRoute>
           </Route>
           <Route>
             <ProtectedRoute>
-              <div className="min-h-screen bg-gray-50">
-                <div className="max-w-md mx-auto px-4 py-6 text-center">
-                  <h1 className="text-2xl font-bold mb-2">404</h1>
-                  <p className="text-gray-600">Page not found</p>
+              <div className="h-full bg-base-100 flex flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <div className="max-w-md mx-auto px-4 py-6 text-center">
+                    <h1 className="text-2xl font-bold mb-2">404</h1>
+                    <p className="text-gray-600">Page not found</p>
+                  </div>
                 </div>
                 <Dock />
               </div>

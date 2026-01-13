@@ -1,3 +1,4 @@
+import { Trophy } from "lucide-react";
 import { usePersonalRecords } from "../hooks/useStats";
 
 export const PRCard = () => {
@@ -5,7 +6,7 @@ export const PRCard = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-6 text-white animate-pulse">
+      <div className="from-accent/30 to-accent rounded-md p-6 text-base-content animate-pulse">
         <div className="h-8 bg-white/20 rounded w-32 mb-4"></div>
         <div className="h-12 bg-white/20 rounded w-48"></div>
       </div>
@@ -16,7 +17,7 @@ export const PRCard = () => {
 
   if (!topPR) {
     return (
-      <div className="bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl p-6 text-white">
+      <div className="from-gray-400 to-gray-500 rounded-md p-6 text-base-content">
         <h2 className="text-lg font-semibold mb-2">Personal Record</h2>
         <p className="text-3xl font-bold mb-1">No PRs yet</p>
         <p className="text-sm opacity-90">Start tracking your workouts!</p>
@@ -25,15 +26,15 @@ export const PRCard = () => {
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+    <div className="bg-linear-to-br from-accent/30 to-accent rounded-md p-6 text-base-content">
       <div className="flex items-start justify-between mb-4">
         <h2 className="text-lg font-semibold">Personal Record</h2>
-        <span className="text-4xl">🏆</span>
+        <Trophy size={32} />
       </div>
       <div className="space-y-2">
-        <p className="text-4xl font-bold">{topPR.max_load} kg</p>
-        <p className="text-xl font-medium">{topPR.exercise_title}</p>
-        <p className="text-sm opacity-90">
+        <p className="text-5xl font-bold">{topPR.max_load} <span className="font-semibold">kg</span></p>
+        <p className="text-xl font-medium text-base-content/80">{topPR.exercise_title}</p>
+        <p className="text-sm text-base-content/60">
           {new Date(topPR.last_session_at).toLocaleDateString()}
         </p>
       </div>
