@@ -279,20 +279,19 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
   RETURN QUERY
-  SELECT
+  SELECT DISTINCT ON (e.id)
     e.id AS exercise_id,
     e.title AS exercise_title,
-    MAX(we.load_in_kg) AS max_load,
+    MAX(wse.load_in_kg) AS max_load,
     w.title AS workout_title,
-    w.last_session_at
+    ws.session_date AS last_session_at
   FROM exercises e
-  INNER JOIN workouts_exercises we ON e.id = we.exercise_id
-  INNER JOIN workouts w ON we.workout_id = w.id
-  WHERE e.user_id = auth.uid()
-    AND w.last_session_at IS NOT NULL
-  GROUP BY e.id, e.title, w.title, w.last_session_at, we.load_in_kg
-  HAVING we.load_in_kg = MAX(we.load_in_kg)
-  ORDER BY max_load DESC;
+  INNER JOIN workout_session_exercises wse ON e.id = wse.exercise_id
+  INNER JOIN workout_sessions ws ON wse.session_id = ws.id
+  INNER JOIN workouts w ON ws.workout_id = w.id
+  WHERE ws.user_id = auth.uid()
+  GROUP BY e.id, e.title, w.title, ws.session_date
+  ORDER BY e.id, max_load DESC, ws.session_date DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
