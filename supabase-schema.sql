@@ -28,6 +28,24 @@ CREATE TABLE workouts_exercises (
   UNIQUE(workout_id, exercise_id)
 );
 
+-- Create workout_sessions table to log each workout session
+CREATE TABLE workout_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  workout_id UUID NOT NULL REFERENCES workouts(id) ON DELETE CASCADE,
+  session_date TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+-- Create workout_session_exercises to log exercise data per session
+CREATE TABLE workout_session_exercises (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id UUID NOT NULL REFERENCES workout_sessions(id) ON DELETE CASCADE,
+  exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+  load_in_kg NUMERIC(6, 2) NOT NULL CHECK (load_in_kg >= 0),
+  details TEXT
+);
+
 -- Create indexes for better performance
 CREATE INDEX idx_workouts_user_id ON workouts(user_id);
 CREATE INDEX idx_workouts_created_at ON workouts(created_at DESC);
@@ -35,11 +53,18 @@ CREATE INDEX idx_workouts_last_session_at ON workouts(last_session_at DESC);
 CREATE INDEX idx_exercises_user_id ON exercises(user_id);
 CREATE INDEX idx_workouts_exercises_workout_id ON workouts_exercises(workout_id);
 CREATE INDEX idx_workouts_exercises_exercise_id ON workouts_exercises(exercise_id);
+CREATE INDEX idx_workout_sessions_user_id ON workout_sessions(user_id);
+CREATE INDEX idx_workout_sessions_workout_id ON workout_sessions(workout_id);
+CREATE INDEX idx_workout_sessions_session_date ON workout_sessions(session_date DESC);
+CREATE INDEX idx_workout_session_exercises_session_id ON workout_session_exercises(session_id);
+CREATE INDEX idx_workout_session_exercises_exercise_id ON workout_session_exercises(exercise_id);
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE workouts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE exercises ENABLE ROW LEVEL SECURITY;
 ALTER TABLE workouts_exercises ENABLE ROW LEVEL SECURITY;
+ALTER TABLE workout_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE workout_session_exercises ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for workouts table
 -- Users can view only their own workouts
@@ -149,6 +174,80 @@ CREATE POLICY "Users can delete own workout exercises"
     )
   );
 
+-- RLS Policies for workout_sessions table
+CREATE POLICY "Users can view own workout sessions"
+  ON workout_sessions
+  FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create own workout sessions"
+  ON workout_sessions
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own workout sessions"
+  ON workout_sessions
+  FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own workout sessions"
+  ON workout_sessions
+  FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- RLS Policies for workout_session_exercises table
+CREATE POLICY "Users can view own workout session exercises"
+  ON workout_session_exercises
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM workout_sessions
+      WHERE workout_sessions.id = workout_session_exercises.session_id
+      AND workout_sessions.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can create own workout session exercises"
+  ON workout_session_exercises
+  FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM workout_sessions
+      WHERE workout_sessions.id = workout_session_exercises.session_id
+      AND workout_sessions.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update own workout session exercises"
+  ON workout_session_exercises
+  FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM workout_sessions
+      WHERE workout_sessions.id = workout_session_exercises.session_id
+      AND workout_sessions.user_id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM workout_sessions
+      WHERE workout_sessions.id = workout_session_exercises.session_id
+      AND workout_sessions.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can delete own workout session exercises"
+  ON workout_session_exercises
+  FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM workout_sessions
+      WHERE workout_sessions.id = workout_session_exercises.session_id
+      AND workout_sessions.user_id = auth.uid()
+    )
+  );
+
 -- Optional: Create a function to automatically set user_id on workout creation
 -- This ensures the user_id is always set correctly from the auth context
 CREATE OR REPLACE FUNCTION set_user_id_on_workout()
@@ -179,6 +278,21 @@ CREATE TRIGGER trigger_set_user_id_on_exercise
   BEFORE INSERT ON exercises
   FOR EACH ROW
   EXECUTE FUNCTION set_user_id_on_exercise();
+
+-- Optional: Create a function to automatically set user_id on workout_sessions creation
+CREATE OR REPLACE FUNCTION set_user_id_on_workout_session()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.user_id := auth.uid();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Optional: Create a trigger to automatically set user_id on workout_sessions
+CREATE TRIGGER trigger_set_user_id_on_workout_session
+  BEFORE INSERT ON workout_sessions
+  FOR EACH ROW
+  EXECUTE FUNCTION set_user_id_on_workout_session();
 
 -- Create function to get personal records (max load per exercise)
 CREATE OR REPLACE FUNCTION get_personal_records()

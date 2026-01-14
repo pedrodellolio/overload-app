@@ -1,6 +1,7 @@
 import { PRCard } from "../components/PRCard";
 import { WorkoutHeatmap } from "../components/WorkoutHeatmap";
 import { LoadEvolution } from "../components/LoadEvolution";
+import { WorkoutEvolutionToggle } from "../components/WorkoutEvolutionToggle";
 import { useAuth } from "../contexts/AuthContext";
 import { LogOutIcon } from "lucide-react";
 
@@ -29,9 +30,14 @@ export const Stats = () => {
           <WorkoutHeatmap />
         </div>
 
-        {/* Load Evolution - Wide */}
+        {/* Load Evolution by Exercise - Wide */}
         <div className="md:col-span-2 lg:col-span-2">
           <LoadEvolution />
+        </div>
+
+        {/* Workout Evolution with Toggle - Full Width */}
+        <div className="md:col-span-2 lg:col-span-3">
+          <WorkoutEvolutionToggle />
         </div>
       </div>
 

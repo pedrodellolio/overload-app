@@ -24,5 +24,5 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Redirect to="/login" />;
   }
 
-  return <div className="h-full pb-20 px-6 pt-6">{children}</div>;
+  return <div className="h-full pb-20 px-6 pt-6 max-w-4xl mx-auto">{children}</div>;
 };

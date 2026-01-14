@@ -19,6 +19,15 @@ const ExerciseInputSchema = z.object({
 
 const WorkoutRegistrationSchema = z.object({
   exercises: z.array(ExerciseInputSchema),
+  sessionDate: z.string().refine(
+    (date) => {
+      const selectedDate = new Date(date);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // Set to end of today
+      return selectedDate <= today;
+    },
+    { message: "Session date cannot be in the future" }
+  ),
 });
 
 type WorkoutRegistrationForm = z.infer<typeof WorkoutRegistrationSchema>;
@@ -48,20 +57,26 @@ export const WorkoutRegistration = () => {
           load_in_kg: ex.load_in_kg,
           details: ex.details || "",
         })) || [],
+      sessionDate: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD format
     },
   });
 
   const onSubmit = async (data: WorkoutRegistrationForm) => {
-    if (!id) return;
+    if (!id || !workout) return;
 
     try {
       await registerMutation.mutateAsync({
         workoutId: id,
-        exerciseUpdates: data.exercises.map((ex) => ({
-          workoutExerciseId: ex.workoutExerciseId,
-          load_in_kg: ex.load_in_kg,
-          details: ex.details || undefined,
-        })),
+        sessionDate: data.sessionDate,
+        exerciseUpdates: data.exercises.map((ex) => {
+          const workoutExercise = workout.exercises.find((we) => we.id === ex.workoutExerciseId);
+          return {
+            workoutExerciseId: ex.workoutExerciseId,
+            exerciseId: workoutExercise?.exercise_id || "",
+            load_in_kg: ex.load_in_kg,
+            details: ex.details || undefined,
+          };
+        }),
       });
       setLocation("/");
     } catch (error) {
@@ -132,6 +147,22 @@ export const WorkoutRegistration = () => {
         <p className="text-sm text-base-content/60 mt-1">
           Register your workout session
         </p>
+      </div>
+
+      {/* Session Date Input */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-base-content/80 mb-2">
+          Session Date
+        </label>
+        <input
+          type="date"
+          {...register("sessionDate")}
+          max={new Date().toISOString().split("T")[0]}
+          className="w-full input"
+        />
+        {errors.sessionDate && (
+          <p className="text-error text-sm mt-1">{errors.sessionDate.message}</p>
+        )}
       </div>
 
       {/* Add Exercise Section */}

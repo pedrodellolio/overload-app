@@ -8,6 +8,7 @@ import {
   deleteWorkout,
   updateWorkoutSession,
 } from "../services/supabase";
+import { sessionKeys } from "./useSessions";
 
 // Query keys
 export const workoutKeys = {
@@ -73,15 +74,18 @@ export const useRegisterWorkout = () => {
   return useMutation({
     mutationFn: ({
       workoutId,
+      sessionDate,
       exerciseUpdates,
     }: {
       workoutId: string;
+      sessionDate: string;
       exerciseUpdates: Array<{
         workoutExerciseId: string;
+        exerciseId: string;
         load_in_kg: number;
         details?: string;
       }>;
-    }) => updateWorkoutSession(workoutId, exerciseUpdates),
+    }) => updateWorkoutSession(workoutId, sessionDate, exerciseUpdates),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: workoutKeys.detail(variables.workoutId),
@@ -90,6 +94,8 @@ export const useRegisterWorkout = () => {
       queryClient.invalidateQueries({
         queryKey: workoutKeys.historyList(),
       });
+      queryClient.invalidateQueries({ queryKey: sessionKeys.list() });
+      queryClient.invalidateQueries({ queryKey: sessionKeys.byWorkout(variables.workoutId) });
     },
   });
 };
