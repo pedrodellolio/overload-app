@@ -37,6 +37,8 @@ export const WorkoutRegistration = () => {
   const [, setLocation] = useLocation();
   const [isAddingExercise, setIsAddingExercise] = useState(false);
   const [selectedExerciseId, setSelectedExerciseId] = useState("");
+  const [exerciseSearchQuery, setExerciseSearchQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(true);
 
   const { data: workout, isLoading } = useWorkout(id || "");
   const { data: availableExercises } = useExercises();
@@ -118,6 +120,14 @@ export const WorkoutRegistration = () => {
     (ex) => !workout?.exercises.some((we) => we.exercise_id === ex.id)
   );
 
+  const filteredExercises = exercisesNotInWorkout?.filter((ex) => {
+    const query = exerciseSearchQuery.toLowerCase();
+    return (
+      ex.title.toLowerCase().includes(query) ||
+      (ex.muscle_group && ex.muscle_group.toLowerCase().includes(query))
+    );
+  });
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -176,18 +186,50 @@ export const WorkoutRegistration = () => {
           </button>
         ) : (
           <div className="bg-base-300 rounded-md p-4 space-y-3">
-            <select
-              value={selectedExerciseId}
-              onChange={(e) => setSelectedExerciseId(e.target.value)}
-              className="w-full select"
-            >
-              <option value="">Select an exercise...</option>
-              {exercisesNotInWorkout?.map((exercise) => (
-                <option key={exercise.id} value={exercise.id}>
-                  {exercise.title}
-                </option>
-              ))}
-            </select>
+            <div className="form-control">
+              <input
+                type="text"
+                placeholder="Search by exercise name or muscle group..."
+                value={exerciseSearchQuery}
+                onChange={(e) => {
+                  setExerciseSearchQuery(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                className="w-full input"
+                autoFocus
+              />
+              {exerciseSearchQuery && showSuggestions && filteredExercises && filteredExercises.length > 0 && (
+                <div className="mt-2 max-h-64 overflow-y-auto bg-base-100 rounded-md border border-base-300 shadow-lg">
+                  <ul className="menu p-0 w-full">
+                    {filteredExercises.map((exercise) => (
+                      <li key={exercise.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedExerciseId(exercise.id);
+                            setExerciseSearchQuery(exercise.title);
+                            setShowSuggestions(false);
+                          }}
+                          className={`flex justify-between items-center px-4 py-3 ${
+                            selectedExerciseId === exercise.id ? 'active' : ''
+                          }`}
+                        >
+                          <span className="font-medium">{exercise.title}</span>
+                          {exercise.muscle_group && (
+                            <span className="text-sm opacity-60">{exercise.muscle_group}</span>
+                          )}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {exerciseSearchQuery && filteredExercises && filteredExercises.length === 0 && (
+                <div className="mt-2 p-4 bg-base-100 rounded-md border border-base-300 text-center text-base-content/60">
+                  No exercises found
+                </div>
+              )}
+            </div>
             <div className="flex gap-2">
               <button
                 onClick={handleAddExercise}
@@ -200,6 +242,8 @@ export const WorkoutRegistration = () => {
                 onClick={() => {
                   setIsAddingExercise(false);
                   setSelectedExerciseId("");
+                  setExerciseSearchQuery("");
+                  setShowSuggestions(true);
                 }}
                 className="btn btn-soft"
               >

@@ -14,8 +14,9 @@ CREATE TABLE workouts (
 CREATE TABLE exercises (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title TEXT NOT NULL,
+  muscle_group TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE
 );
 
 -- Create workouts_exercises join table
@@ -51,6 +52,7 @@ CREATE INDEX idx_workouts_user_id ON workouts(user_id);
 CREATE INDEX idx_workouts_created_at ON workouts(created_at DESC);
 CREATE INDEX idx_workouts_last_session_at ON workouts(last_session_at DESC);
 CREATE INDEX idx_exercises_user_id ON exercises(user_id);
+CREATE INDEX idx_exercises_muscle_group ON exercises(muscle_group);
 CREATE INDEX idx_workouts_exercises_workout_id ON workouts_exercises(workout_id);
 CREATE INDEX idx_workouts_exercises_exercise_id ON workouts_exercises(exercise_id);
 CREATE INDEX idx_workout_sessions_user_id ON workout_sessions(user_id);
@@ -93,30 +95,17 @@ CREATE POLICY "Users can delete own workouts"
   USING (auth.uid() = user_id);
 
 -- RLS Policies for exercises table
--- Users can view only their own exercises
-CREATE POLICY "Users can view own exercises"
+-- All authenticated users can view exercises (predefined exercises are available to all)
+CREATE POLICY "All users can view exercises"
   ON exercises
   FOR SELECT
-  USING (auth.uid() = user_id);
+  USING (auth.uid() IS NOT NULL);
 
--- Users can insert their own exercises
-CREATE POLICY "Users can create own exercises"
+-- Prevent modification of predefined exercises (user_id IS NULL)
+CREATE POLICY "Prevent modification of predefined exercises"
   ON exercises
-  FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
--- Users can update only their own exercises
-CREATE POLICY "Users can update own exercises"
-  ON exercises
-  FOR UPDATE
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-
--- Users can delete only their own exercises
-CREATE POLICY "Users can delete own exercises"
-  ON exercises
-  FOR DELETE
-  USING (auth.uid() = user_id);
+  FOR ALL
+  USING (user_id IS NOT NULL AND auth.uid() = user_id);
 
 -- RLS Policies for workouts_exercises table
 -- Users can only view workout_exercises for their own workouts
@@ -264,21 +253,6 @@ CREATE TRIGGER trigger_set_user_id_on_workout
   FOR EACH ROW
   EXECUTE FUNCTION set_user_id_on_workout();
 
--- Optional: Create a function to automatically set user_id on exercise creation
-CREATE OR REPLACE FUNCTION set_user_id_on_exercise()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.user_id := auth.uid();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Optional: Create a trigger to automatically set user_id on exercises
-CREATE TRIGGER trigger_set_user_id_on_exercise
-  BEFORE INSERT ON exercises
-  FOR EACH ROW
-  EXECUTE FUNCTION set_user_id_on_exercise();
-
 -- Optional: Create a function to automatically set user_id on workout_sessions creation
 CREATE OR REPLACE FUNCTION set_user_id_on_workout_session()
 RETURNS TRIGGER AS $$
@@ -321,3 +295,85 @@ BEGIN
   ORDER BY max_load DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Insert predefined exercises available to all users
+
+-- PEITO (Chest)
+INSERT INTO exercises (title, muscle_group, user_id) VALUES
+('Supino Reto', 'Peito', NULL),
+('Supino Inclinado', 'Peito', NULL),
+('Supino Declinado', 'Peito', NULL),
+('Crucifixo', 'Peito', NULL),
+('Crucifixo Inclinado', 'Peito', NULL),
+('Peck Deck', 'Peito', NULL),
+('Flexão', 'Peito', NULL);
+
+-- COSTAS (Back)
+INSERT INTO exercises (title, muscle_group, user_id) VALUES
+('Puxada Frontal', 'Costas', NULL),
+('Puxada Triângulo', 'Costas', NULL),
+('Remada Curvada', 'Costas', NULL),
+('Remada Cavalinho', 'Costas', NULL),
+('Remada Unilateral', 'Costas', NULL),
+('Pullover', 'Costas', NULL),
+('Barra Fixa', 'Costas', NULL),
+('Levantamento Terra', 'Costas', NULL);
+
+-- OMBROS (Shoulders)
+INSERT INTO exercises (title, muscle_group, user_id) VALUES
+('Desenvolvimento', 'Ombros', NULL),
+('Desenvolvimento Arnold', 'Ombros', NULL),
+('Elevação Lateral', 'Ombros', NULL),
+('Elevação Frontal', 'Ombros', NULL),
+('Elevação Posterior', 'Ombros', NULL),
+('Remada Alta', 'Ombros', NULL),
+('Encolhimento', 'Ombros', NULL);
+
+-- BÍCEPS (Biceps)
+INSERT INTO exercises (title, muscle_group, user_id) VALUES
+('Rosca Direta', 'Bíceps', NULL),
+('Rosca Alternada', 'Bíceps', NULL),
+('Rosca Martelo', 'Bíceps', NULL),
+('Rosca Concentrada', 'Bíceps', NULL),
+('Rosca Scott', 'Bíceps', NULL),
+('Rosca Inversa', 'Bíceps', NULL),
+('Rosca 21', 'Bíceps', NULL);
+
+-- TRÍCEPS (Triceps)
+INSERT INTO exercises (title, muscle_group, user_id) VALUES
+('Tríceps Testa', 'Tríceps', NULL),
+('Tríceps Francês', 'Tríceps', NULL),
+('Tríceps Pulley', 'Tríceps', NULL),
+('Tríceps Corda', 'Tríceps', NULL),
+('Tríceps Coice', 'Tríceps', NULL),
+('Supino Fechado', 'Tríceps', NULL),
+('Mergulho', 'Tríceps', NULL);
+
+-- PERNAS (Legs)
+INSERT INTO exercises (title, muscle_group, user_id) VALUES
+('Agachamento', 'Pernas', NULL),
+('Agachamento Sumô', 'Pernas', NULL),
+('Leg Press', 'Pernas', NULL),
+('Cadeira Extensora', 'Pernas', NULL),
+('Cadeira Flexora', 'Pernas', NULL),
+('Mesa Flexora', 'Pernas', NULL),
+('Stiff', 'Pernas', NULL),
+('Afundo', 'Pernas', NULL),
+('Cadeira Adutora', 'Pernas', NULL),
+('Cadeira Abdutora', 'Pernas', NULL),
+('Panturrilha Sentado', 'Pernas', NULL),
+('Panturrilha em Pé', 'Pernas', NULL),
+('Glúteo 4 Apoios', 'Pernas', NULL),
+('Glúteo Caneleira', 'Pernas', NULL);
+
+-- ABDÔMEN (Core/Abs)
+INSERT INTO exercises (title, muscle_group, user_id) VALUES
+('Abdominal Reto', 'Abdômen', NULL),
+('Abdominal Canivete', 'Abdômen', NULL),
+('Abdominal Infra', 'Abdômen', NULL),
+('Prancha', 'Abdômen', NULL),
+('Prancha Lateral', 'Abdômen', NULL),
+('Abdominal Bicicleta', 'Abdômen', NULL),
+('Elevação de Pernas', 'Abdômen', NULL),
+('Abdominal Supra', 'Abdômen', NULL),
+('Russian Twist', 'Abdômen', NULL);

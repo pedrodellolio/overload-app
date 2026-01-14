@@ -3,7 +3,6 @@ import type {
   WorkoutWithExercises,
   CreateWorkout,
   Exercise,
-  CreateExercise,
   WorkoutSessionWithDetails,
 } from "../types/models";
 import { createClient } from "@supabase/supabase-js";
@@ -206,30 +205,6 @@ export const getExercises = async (): Promise<Exercise[]> => {
     .order("title", { ascending: true });
   if (error) throw error;
   return data;
-};
-
-// Exercise mutations
-export const createExercise = async (
-  exercise: CreateExercise
-): Promise<Exercise> => {
-  const { data, error } = await supabase
-    .from("exercises")
-    .insert({
-      title: exercise.title,
-      created_at: new Date().toISOString(),
-    })
-    .select()
-    .single();
-  if (error) throw error;
-  return data;
-};
-
-export const deleteExercise = async (exerciseId: string): Promise<void> => {
-  const { error } = await supabase
-    .from("exercises")
-    .delete()
-    .eq("id", exerciseId);
-  if (error) throw error;
 };
 
 // Workout-Exercise relationship

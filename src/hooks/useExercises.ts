@@ -1,9 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { CreateExercise } from "../types/models";
 import {
   getExercises,
-  createExercise,
-  deleteExercise,
   addExerciseToWorkout,
   removeExerciseFromWorkout,
 } from "../services/supabase";
@@ -25,28 +22,6 @@ export const useExercises = () => {
 };
 
 // Mutations
-export const useCreateExercise = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (exercise: CreateExercise) => createExercise(exercise),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: exerciseKeys.list() });
-    },
-  });
-};
-
-export const useDeleteExercise = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (exerciseId: string) => deleteExercise(exerciseId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: exerciseKeys.list() });
-    },
-  });
-};
-
 export const useAddExerciseToWorkout = () => {
   const queryClient = useQueryClient();
 

@@ -5,7 +5,6 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Dock } from "./components/Dock";
 import { Login } from "./pages/Login";
 import { Home } from "./pages/Home";
-import { Exercises } from "./pages/Exercises";
 import { History } from "./pages/History";
 import { Stats } from "./pages/Stats";
 import { WorkoutRegistration } from "./pages/WorkoutRegistration";
@@ -30,16 +29,6 @@ function App() {
               <div className="h-full bg-base-100 flex flex-col">
                 <div className="flex-1 overflow-y-auto">
                   <Home />
-                </div>
-                <Dock />
-              </div>
-            </ProtectedRoute>
-          </Route>
-          <Route path="/exercises">
-            <ProtectedRoute>
-              <div className="h-full bg-base-100 flex flex-col">
-                <div className="flex-1 overflow-y-auto">
-                  <Exercises />
                 </div>
                 <Dock />
               </div>

@@ -12,8 +12,9 @@ export const WorkoutSchema = z.object({
 export const ExerciseSchema = z.object({
   id: z.uuid(),
   title: z.string().min(1, "Title is required"),
+  muscle_group: z.string().nullable(),
   created_at: z.iso.datetime(),
-  user_id: z.uuid(),
+  user_id: z.uuid().nullable(),
 });
 
 export const WorkoutExerciseSchema = z.object({
