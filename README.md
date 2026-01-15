@@ -1,6 +1,6 @@
 # Overload - Rastreador de Treinos
-<img width="430" height="720" alt="image" src="https://github.com/user-attachments/assets/311b6b99-8553-4ede-acd7-3d0622ce7f29" />
-<img width="430" height="720" alt="image" src="https://github.com/user-attachments/assets/f68edfb3-d47b-4469-8c30-3c9414f8619f" />
+<img width="380" height="620" alt="image" src="https://github.com/user-attachments/assets/311b6b99-8553-4ede-acd7-3d0622ce7f29" />
+<img width="380" height="620" alt="image" src="https://github.com/user-attachments/assets/f68edfb3-d47b-4469-8c30-3c9414f8619f" />
 
 ## Visao Geral
 
