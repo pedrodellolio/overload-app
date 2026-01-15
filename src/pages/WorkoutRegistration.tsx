@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useWorkout, useRegisterWorkout } from "../hooks/useWorkouts";
 import {
@@ -49,19 +49,29 @@ export const WorkoutRegistration = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<WorkoutRegistrationForm>({
     resolver: zodResolver(WorkoutRegistrationSchema),
     defaultValues: {
-      exercises:
-        workout?.exercises.map((ex) => ({
+      exercises: [],
+      sessionDate: new Date().toISOString().split("T")[0],
+    },
+  });
+
+  // Reset form when workout data loads
+  useEffect(() => {
+    if (workout) {
+      reset({
+        exercises: workout.exercises.map((ex) => ({
           workoutExerciseId: ex.id,
           load_in_kg: ex.load_in_kg,
           details: ex.details || "",
-        })) || [],
-      sessionDate: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD format
-    },
-  });
+        })),
+        sessionDate: new Date().toISOString().split("T")[0],
+      });
+    }
+  }, [workout, reset]);
 
   const onSubmit = async (data: WorkoutRegistrationForm) => {
     if (!id || !workout) return;
