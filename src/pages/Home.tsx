@@ -1,17 +1,8 @@
 import { PRCard } from "../components/PRCard";
 import { Calendar } from "../components/Calendar";
 import { ActiveWorkouts } from "../components/ActiveWorkouts";
-import { useAuth } from "../contexts/AuthContext";
 
 export const Home = () => {
-  const { user, signOut } = useAuth();
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error("Sign out error:", error);
-    }
-  };
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Welcome Back!</h1>
