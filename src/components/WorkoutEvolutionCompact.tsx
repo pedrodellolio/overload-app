@@ -85,7 +85,7 @@ export const WorkoutEvolutionCompact = () => {
               };
 
               return (
-                <div key={exerciseTitle} className="border border-base-300 rounded-lg p-3">
+                <div key={exerciseTitle} className="border border-base-300 rounded-md p-3">
                   {/* Exercise title and stats in one row */}
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-lg">{exerciseTitle}</h3>

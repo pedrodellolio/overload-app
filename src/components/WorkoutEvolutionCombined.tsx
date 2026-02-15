@@ -189,7 +189,7 @@ export const WorkoutEvolutionCombined = () => {
               {exerciseStats.map((stat, index) => (
                 <div
                   key={stat.title}
-                  className="flex items-center justify-between border border-base-300 rounded-lg p-3"
+                  className="flex items-center justify-between border border-base-300 rounded-md p-3"
                   style={{
                     borderLeftWidth: "4px",
                     borderLeftColor: CHART_COLORS[index % CHART_COLORS.length],

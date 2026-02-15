@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useWorkouts } from "../hooks/useWorkouts";
 import { useWorkoutEvolution } from "../hooks/useStats";
+import { useWorkoutSessions } from "../hooks/useSessions";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Area, AreaChart, Line, LineChart, CartesianGrid, XAxis, YAxis, LabelList, Legend } from "recharts";
 
@@ -18,10 +19,34 @@ const CHART_COLORS = [
 
 export const WorkoutEvolutionToggle = () => {
   const { data: workouts } = useWorkouts();
+  const { data: sessions } = useWorkoutSessions(1000);
   const [selectedWorkoutId, setSelectedWorkoutId] = useState<string>("");
   const [viewMode, setViewMode] = useState<"individual" | "combined">("individual");
 
   const { data: evolution, isLoading } = useWorkoutEvolution(selectedWorkoutId);
+
+  // Filter workouts that have at least 2 sessions
+  const filteredWorkouts = useMemo(() => {
+    if (!workouts || !sessions) return workouts;
+
+    const workoutsWithProgress = new Set<string>();
+
+    // Count sessions per workout
+    sessions.forEach((session) => {
+      workoutsWithProgress.add(session.workout_id);
+    });
+
+    // Filter workouts that have at least 2 sessions
+    const workoutSessionCounts = new Map<string, number>();
+    sessions.forEach((session) => {
+      const count = workoutSessionCounts.get(session.workout_id) || 0;
+      workoutSessionCounts.set(session.workout_id, count + 1);
+    });
+
+    return workouts.filter((workout) =>
+      (workoutSessionCounts.get(workout.id) || 0) >= 2
+    );
+  }, [workouts, sessions]);
 
   // Group evolution data by exercise
   const groupedByExercise = evolution?.reduce((acc, item) => {
@@ -107,7 +132,7 @@ export const WorkoutEvolutionToggle = () => {
 
         {/* Toggle Button */}
         {selectedWorkoutId && groupedByExercise && Object.keys(groupedByExercise).length > 0 && (
-          <div className="flex gap-1 bg-base-300 rounded-lg p-1">
+          <div className="flex gap-1 bg-base-300 rounded-md p-1">
             <button
               onClick={() => setViewMode("individual")}
               className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
@@ -138,7 +163,7 @@ export const WorkoutEvolutionToggle = () => {
         className="w-full select"
       >
         <option value="">Select a workout...</option>
-        {workouts?.map((workout) => (
+        {filteredWorkouts?.map((workout) => (
           <option key={workout.id} value={workout.id}>
             {workout.title}
           </option>
@@ -188,7 +213,7 @@ export const WorkoutEvolutionToggle = () => {
               };
 
               return (
-                <div key={exerciseTitle} className="border border-base-300 rounded-lg p-3">
+                <div key={exerciseTitle} className="border border-base-300 rounded-md p-3">
                   {/* Exercise title and stats in one row */}
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-lg">{exerciseTitle}</h3>
@@ -321,7 +346,7 @@ export const WorkoutEvolutionToggle = () => {
               {exerciseStats.map((stat, index) => (
                 <div
                   key={stat.title}
-                  className="flex items-center justify-between border border-base-300 rounded-lg p-3"
+                  className="flex items-center justify-between border border-base-300 rounded-md p-3"
                   style={{
                     borderLeftWidth: "4px",
                     borderLeftColor: CHART_COLORS[index % CHART_COLORS.length],

@@ -4,10 +4,12 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Dock } from "./components/Dock";
 import { Login } from "./pages/Login";
-import { Home } from "./pages/Home";
+import { Workouts } from "./pages/Workouts";
 import { History } from "./pages/History";
+import { Home } from "./pages/Home";
 import { Stats } from "./pages/Stats";
 import { WorkoutRegistration } from "./pages/WorkoutRegistration";
+import { SessionView } from "./pages/SessionView";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +31,16 @@ function App() {
               <div className="h-full bg-base-100 flex flex-col">
                 <div className="flex-1 overflow-y-auto">
                   <Home />
+                </div>
+                <Dock />
+              </div>
+            </ProtectedRoute>
+          </Route>
+          <Route path="/workouts">
+            <ProtectedRoute>
+              <div className="h-full bg-base-100 flex flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <Workouts />
                 </div>
                 <Dock />
               </div>
@@ -59,6 +71,16 @@ function App() {
               <div className="h-full bg-base-100 flex flex-col">
                 <div className="flex-1 overflow-y-auto">
                   <WorkoutRegistration />
+                </div>
+                <Dock />
+              </div>
+            </ProtectedRoute>
+          </Route>
+          <Route path="/session/:sessionId">
+            <ProtectedRoute>
+              <div className="h-full bg-base-100 flex flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <SessionView />
                 </div>
                 <Dock />
               </div>

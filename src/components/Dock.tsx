@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, History, BarChart3 } from "lucide-react";
+import { DumbbellIcon, History, BarChart3, HomeIcon } from "lucide-react";
 
 export const Dock = () => {
   const [location] = useLocation();
@@ -7,7 +7,8 @@ export const Dock = () => {
   // const [showUserMenu, setShowUserMenu] = useState(false);
 
   const navItems = [
-    { path: "/", label: "Home", icon: Home },
+    { path: "/", label: "Home", icon: HomeIcon },
+    { path: "/workouts", label: "Workouts", icon: DumbbellIcon },
     { path: "/history", label: "History", icon: History },
     { path: "/stats", label: "Stats", icon: BarChart3 },
   ];

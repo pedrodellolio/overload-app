@@ -1,14 +1,49 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useExercises } from "../hooks/useExercises";
 import { useLoadEvolution } from "../hooks/useStats";
+import { useWorkoutSessions } from "../hooks/useSessions";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts";
 
 export const LoadEvolution = () => {
   const { data: exercises } = useExercises();
+  const { data: sessions } = useWorkoutSessions(1000);
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>("");
 
   const { data: evolution, isLoading } = useLoadEvolution(selectedExerciseId);
+
+  // Filter exercises that have at least 2 sessions with different loads
+  const filteredExercises = useMemo(() => {
+    if (!exercises || !sessions) return exercises;
+
+    const exercisesWithProgress = new Set<string>();
+
+    // Group sessions by exercise
+    const exerciseSessionsMap = new Map<string, number[]>();
+
+    sessions.forEach((session) => {
+      session.exercises.forEach((ex) => {
+        const exerciseId = ex.exercise.id;
+        if (!exerciseSessionsMap.has(exerciseId)) {
+          exerciseSessionsMap.set(exerciseId, []);
+        }
+        exerciseSessionsMap.get(exerciseId)!.push(ex.load_in_kg);
+      });
+    });
+
+    // Check which exercises have progress (at least 2 sessions with different loads)
+    exerciseSessionsMap.forEach((loads, exerciseId) => {
+      if (loads.length >= 2) {
+        // Check if there's variation in loads
+        const hasVariation = loads.some((load, idx) => idx > 0 && load !== loads[0]);
+        if (hasVariation || loads.length > 2) {
+          exercisesWithProgress.add(exerciseId);
+        }
+      }
+    });
+
+    return exercises.filter((ex) => exercisesWithProgress.has(ex.id));
+  }, [exercises, sessions]);
 
   const getMaxLoad = () => {
     if (!evolution || evolution.length === 0) return 0;
@@ -43,7 +78,7 @@ export const LoadEvolution = () => {
         className="w-full select"
       >
         <option value="">Select an exercise...</option>
-        {exercises?.map((exercise) => (
+        {filteredExercises?.map((exercise) => (
           <option key={exercise.id} value={exercise.id}>
             {exercise.title}
           </option>

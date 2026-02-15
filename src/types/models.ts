@@ -13,6 +13,7 @@ export const ExerciseSchema = z.object({
   id: z.uuid(),
   title: z.string().min(1, "Title is required"),
   muscle_group: z.string().nullable(),
+  equipment_type: z.enum(["weight", "machine", "bodyweight"]).default("weight"),
   created_at: z.iso.datetime(),
   user_id: z.uuid().nullable(),
 });

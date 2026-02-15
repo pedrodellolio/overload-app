@@ -1,53 +1,23 @@
-import { PRCard } from "../components/PRCard";
-import { WorkoutHeatmap } from "../components/WorkoutHeatmap";
 import { LoadEvolution } from "../components/LoadEvolution";
 import { WorkoutEvolutionToggle } from "../components/WorkoutEvolutionToggle";
-import { useAuth } from "../contexts/AuthContext";
-import { LogOutIcon } from "lucide-react";
+import { WorkoutHeatmap } from "../components/WorkoutHeatmap";
 
 export const Stats = () => {
-  const { user, signOut } = useAuth();
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error("Sign out error:", error);
-    }
-  };
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Stats</h1>
+      <h1 className="text-2xl font-bold mb-6">Analytics & Stats</h1>
 
-      {/* Bento Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-auto">
-        {/* PR Card - Largest, most prominent */}
-        <div className="md:col-span-1 lg:row-span-2">
-          <PRCard />
-        </div>
+      {/* Charts Layout */}
+      <div className="space-y-4">
+        {/* Workout Frequency Heatmap */}
+        <WorkoutHeatmap />
 
-        {/* Workout Heatmap - Wide */}
-        <div className="md:col-span-1 lg:col-span-2">
-          <WorkoutHeatmap />
-        </div>
+        {/* Load Evolution by Exercise */}
+        <LoadEvolution />
 
-        {/* Load Evolution by Exercise - Wide */}
-        <div className="md:col-span-2 lg:col-span-2">
-          <LoadEvolution />
-        </div>
-
-        {/* Workout Evolution with Toggle - Full Width */}
-        <div className="md:col-span-2 lg:col-span-3">
-          <WorkoutEvolutionToggle />
-        </div>
+        {/* Workout Evolution with Toggle */}
+        <WorkoutEvolutionToggle />
       </div>
-
-      <p className="mt-8 text-sm text-base-content/60 text-center">
-        Logged in as <span className="font-semibold text-base-content">{user?.email}</span>
-      </p>
-      <button onClick={handleSignOut} className="mt-6 w-full btn btn-soft">
-        <LogOutIcon size={16} />
-        Sign Out
-      </button>
     </div>
   );
 };

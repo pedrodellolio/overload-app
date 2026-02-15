@@ -234,18 +234,20 @@ export const removeExerciseFromWorkout = async (
 };
 
 // Stats queries
-export const getPersonalRecords = async (): Promise<
-  Array<{
-    exercise_id: string;
-    exercise_title: string;
-    max_load: number;
-    workout_title: string;
-    last_session_at: string;
-  }>
-> => {
+type PersonalRecord = {
+  exercise_id: string;
+  exercise_title: string;
+  equipment_type: "weight" | "machine" | "bodyweight";
+  max_load: number;
+  workout_title: string;
+  last_session_at: string;
+};
+
+export const getPersonalRecords = async (): Promise<PersonalRecord[]> => {
   const { data, error } = await supabase.rpc("get_personal_records");
   if (error) throw error;
-  return data;
+  // Filter out 0kg PRs as a safety measure (also filtered in DB)
+  return (data as PersonalRecord[])?.filter((pr) => pr.max_load > 0) || [];
 };
 
 export const getWorkoutFrequency = async (
